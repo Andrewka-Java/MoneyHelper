@@ -1,0 +1,4 @@
+FROM woahbase/alpine-mysql:x86_64
+ENV MYSQL_ROOT_PASSWORD=root
+ENV MYSQL_DATABASE=money_helper
+EXPOSE 3307

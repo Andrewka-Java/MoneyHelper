@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+    id "io.spring.dependency-management" version "1.0.8.RELEASE"
+}
+
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'io.spring.dependency-management'
+}
+
+allprojects {
+    group 'org.example'
+    version '1.0'
+
+    java.sourceCompatibility(JavaVersion.VERSION_1_8)
+
+    repositories {
+        mavenCentral()
+    }
+
+}
+
