@@ -34,4 +34,12 @@ public class Auth extends BaseEntity {
     public void setUser(final User user) {
         this.user = user;
     }
+
+    public String getRevokedRefreshToken() {
+        return revokedRefreshToken;
+    }
+
+    public void setRevokedRefreshToken(final String revokedRefreshToken) {
+        this.revokedRefreshToken = revokedRefreshToken;
+    }
 }
