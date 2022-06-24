@@ -26,7 +26,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Category applyCategory(final String categoryName) {
         return categoryRepository.findByNameIgnoreCase(categoryName)
-                .orElse(categoryRepository.save(new Category(categoryName)));
+                .orElseGet(() -> categoryRepository.save(new Category(categoryName)));
     }
 
 }
