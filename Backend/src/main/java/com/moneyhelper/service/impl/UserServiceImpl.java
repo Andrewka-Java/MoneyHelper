@@ -59,29 +59,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void logoutUser(final String userEmail) {
+    public void revokeRefreshToken(final String userEmail, final String revokedRefreshToken) {
         final User user = getUserByEmail(userEmail);
-        user.getAuth().setAccessToken(null);
-        user.getAuth().setRefreshToken(null);
-        userRepository.save(user);
+        authRepository.save(new Auth(revokedRefreshToken, user));
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     @Override
-    public void save(final UserDto userDto) {
+    public User save(final UserDto userDto) {
         final User user = userMapper.toUser(userDto);
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        final Auth auth = authRepository.save(new Auth());
-        user.setAuth(auth);
-        userRepository.save(user);
-    }
-
-    @Override
-    public void editAuth(final String userEmail, final String accessToken, final String refreshToken) {
-        final User user = getUserByEmail(userEmail);
-        user.getAuth().setAccessToken(accessToken);
-        user.getAuth().setRefreshToken(refreshToken);
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Override

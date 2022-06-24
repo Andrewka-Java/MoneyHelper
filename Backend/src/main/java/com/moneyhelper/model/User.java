@@ -6,9 +6,10 @@ package com.moneyhelper.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.Min;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "user")
@@ -17,7 +18,7 @@ public class User extends BaseEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "password", nullable = false)
@@ -34,12 +35,8 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "id")
     private List<Item> item;
 
-    @OneToOne
-    @JoinColumn(
-            name = "auth_id",
-            referencedColumnName = "id"
-    )
-    private Auth auth;
+    @OneToMany(mappedBy = "id")
+    private Set<Auth> authes;
 
     public User() {
     }
@@ -111,11 +108,25 @@ public class User extends BaseEntity {
         this.item = items;
     }
 
-    public Auth getAuth() {
-        return auth;
+    public Set<Auth> getAuthes() {
+        return authes;
     }
 
-    public void setAuth(final Auth auth) {
-        this.auth = auth;
+    public void setAuthes(final Set<Auth> authSet) {
+        if (authSet != null && !authSet.isEmpty()) {
+            authes.forEach(auth -> auth.setUser(this));
+        }
+        this.authes = authSet;
     }
+
+    public void addAuth(final Auth auth) {
+        if (this.authes != null) {
+            if (auth != null) {
+                this.authes.add(auth);
+                return;
+            }
+        }
+        this.authes = Collections.singleton(auth);
+    }
+
 }

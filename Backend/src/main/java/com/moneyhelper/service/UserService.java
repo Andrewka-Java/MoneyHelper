@@ -5,15 +5,14 @@
 package com.moneyhelper.service;
 
 import com.moneyhelper.dto.UserDto;
+import com.moneyhelper.model.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserService extends UserDetailsService {
 
-    void logoutUser(String userEmail);
+    void revokeRefreshToken(String userEmail, String revokedRefreshToken);
 
-    void save(UserDto userDto);
-
-    void editAuth(String userEmail, String accessToken, String refreshToken);
+    User save(UserDto userDto);
 
     void edit(UserDto userDto, String userId);
 
