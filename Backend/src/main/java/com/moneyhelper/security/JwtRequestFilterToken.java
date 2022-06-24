@@ -19,6 +19,8 @@ import java.util.Collections;
 
 import static com.moneyhelper.util.Constant.*;
 import static com.moneyhelper.util.MoneyHelperUtil.getGrantedAuthorities;
+import static io.micrometer.core.instrument.util.StringUtils.isBlank;
+import static io.micrometer.core.instrument.util.StringUtils.isNotBlank;
 
 @Component
 public class JwtRequestFilterToken extends AbstractRequestFilterTokenHelper {
@@ -39,19 +41,23 @@ public class JwtRequestFilterToken extends AbstractRequestFilterTokenHelper {
             final HttpServletResponse response,
             final FilterChain filterChain
     ) throws ServletException, IOException {
-        final String token = request.getHeader(ACCESS_TOKEN_HEADER);
+
         final String url = request.getRequestURI();
         final String method = request.getMethod();
+        final String token = request.getHeader(ACCESS_TOKEN_HEADER);
+        final String refreshToken = request.getHeader(REFRESH_TOKEN_HEADER);
 
-        //Authenticate anonymous user for login or refresh-token
-        if (token == null && (url.contains(LOGIN_CONTEXT_PATH) && method.equals("POST") || url.contains(REFRESH_TOKEN_CONTEXT_PATH) && method.equals("GET"))) {
+        //Authenticate anonymous user for login or refresh-token urls
+        final boolean isLoginAllowed = url.contains(LOGIN_CONTEXT_PATH) && method.equals("POST");
+
+        if ( isBlank(token) && (isNotBlank(refreshToken) || isLoginAllowed) ) {
             generateTokenFunction(ACCESS_TOKEN_FUNCTION, request);
             filterChain.doFilter(request, response);
             return;
         }
 
         //Authenticate anonymous user for any another request
-        if (token == null) {
+        if ( isBlank(token) && isBlank(refreshToken) ) {
             authenticate(
                     null,
                     null,
