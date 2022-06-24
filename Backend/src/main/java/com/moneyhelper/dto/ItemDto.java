@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 public class ItemDto {
@@ -16,7 +17,7 @@ public class ItemDto {
     @JsonProperty("name")
     private String name;
 
-    @NotBlank(message = "Item price is blank")
+    @NotNull(message = "Item price is null")
     @DecimalMin(value = "0.0", inclusive = false, message = "Item price less then 0.0")
     @JsonProperty("price")
     private BigDecimal price;

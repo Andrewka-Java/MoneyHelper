@@ -114,17 +114,17 @@ public class User extends BaseEntity {
 
     public void setAuthes(final Set<Auth> authSet) {
         if (authSet != null && !authSet.isEmpty()) {
-            authes.forEach(auth -> auth.setUser(this));
+            authSet.forEach(auth -> auth.setUser(this));
         }
         this.authes = authSet;
     }
 
     public void addAuth(final Auth auth) {
+        if (auth == null) {
+            return;
+        }
         if (this.authes != null) {
-            if (auth != null) {
-                this.authes.add(auth);
-                return;
-            }
+            this.authes.add(auth);
         }
         this.authes = Collections.singleton(auth);
     }
