@@ -5,6 +5,7 @@
 package com.moneyhelper.controller;
 
 import com.moneyhelper.dto.UserDto;
+import com.moneyhelper.model.User;
 import com.moneyhelper.repository.UserRepository;
 import com.moneyhelper.security.annotation.AnonymousRole;
 import com.moneyhelper.security.annotation.ManagerRole;
@@ -46,9 +47,10 @@ class UserController {
 
     @AnonymousRole
     @PostMapping
-    ResponseEntity<Void> createUser(@Valid @RequestBody UserDto userDto) {
-        userService.save(userDto);
-        return status(CREATED).build();
+    ResponseEntity<String> createUser(@Valid @RequestBody UserDto userDto) {
+        final User user = userService.save(userDto);
+        return status(CREATED)
+                .body(user.getId());
     }
 
     @PutMapping("/{userId}")

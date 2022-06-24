@@ -4,37 +4,34 @@
 
 package com.moneyhelper.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "auth")
 public class Auth extends BaseEntity {
 
-    private String refreshToken;
-    private String accessToken;
+    @Column(name = "revoked_refresh_token", nullable = false)
+    private String revokedRefreshToken;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id",
+            referencedColumnName = "id",
+            foreignKey = @ForeignKey(name = "fk_auth_user_id"))
+    private User user;
 
     public Auth() {
     }
 
-    public Auth(final String refreshToken, final String accessToken) {
-        this.refreshToken = refreshToken;
-        this.accessToken = accessToken;
+    public Auth(final String revokedRefreshToken, final User user) {
+        this.revokedRefreshToken = revokedRefreshToken;
+        this.user = user;
     }
 
-    public String getRefreshToken() {
-        return refreshToken;
+    public User getUser() {
+        return user;
     }
 
-    public void setRefreshToken(final String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public void setAccessToken(final String accessToken) {
-        this.accessToken = accessToken;
+    public void setUser(final User user) {
+        this.user = user;
     }
 }

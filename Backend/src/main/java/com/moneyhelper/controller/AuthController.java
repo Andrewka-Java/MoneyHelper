@@ -44,11 +44,12 @@ class AuthController {
     }
 
     @AnonymousRole
-    @GetMapping("/logout")
-    ResponseEntity<String> logout(final HttpServletRequest request) {
+    @GetMapping("/revoke-refresh-token")
+    ResponseEntity<String> revokeRefreshToken(final HttpServletRequest request) {
         final String userEmail = request.getUserPrincipal().getName();
-        userService.logoutUser(userEmail);
-        return ok("You are successfully logged out");
+        final String refreshToken = request.getHeader(REFRESH_TOKEN_HEADER);
+        userService.revokeRefreshToken(userEmail, refreshToken);
+        return ok("Your refresh token is added to black list successfully");
     }
 
     @UserRole
@@ -68,8 +69,6 @@ class AuthController {
 
         final String accessToken = accessTokenFunction.apply(userEmail);
         final String refreshToken = refreshTokenFunction.apply(userEmail);
-
-        userService.editAuth(userEmail, accessToken, refreshToken);
 
         return ok(new AuthResponseDto(accessToken, refreshToken));
     }

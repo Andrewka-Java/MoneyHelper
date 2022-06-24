@@ -20,7 +20,7 @@ public interface UserRepository extends JpaRepository<User, String> {
     Optional<User> findByEmail(String name);
 
     @Modifying
-    @Query(nativeQuery = true, value = "UPDATE user usr SET usr.cash = usr.cash + :cash WHERE usr.id = :userId")
+    @Query(value = "UPDATE user usr SET usr.cash = usr.cash + :cash WHERE usr.id = :userId", nativeQuery = true)
     @Transactional
     void addCash(BigDecimal cash, String userId);
 
