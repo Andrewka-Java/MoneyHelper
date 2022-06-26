@@ -17,8 +17,8 @@ public interface UserMapper {
 
     @Mappings(value = {
             @Mapping(target = "id", ignore = true),
-            @Mapping(target = "item", ignore = true),
             @Mapping(target = "authes", ignore = true),
+            @Mapping(target = "items", ignore = true),
 
             @Mapping(target = "role", constant = ROLE_DEFAULT)
     })

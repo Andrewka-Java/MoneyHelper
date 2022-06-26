@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+
 import static java.lang.String.format;
 
 @Service
@@ -49,13 +51,14 @@ public class ItemServiceImpl implements ItemService {
         itemRepository.save(item);
     }
 
+    //ToDo: Refactor
     @Override
     public void saveItem(final ItemDto itemDto, final String userId) {
         final User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException(format("Failed to find user with id [%s]", userId)));
 
         final Category category = categoryService.applyCategory(itemDto.getCategoryName());
-        final Item item = itemMapper.toItem(itemDto, category, user);
+        final Item item = itemMapper.toItem(itemDto, category, Collections.singletonList(user));
         itemRepository.save(item);
     }
 

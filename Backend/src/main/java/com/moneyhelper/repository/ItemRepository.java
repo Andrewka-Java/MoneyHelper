@@ -16,7 +16,13 @@ import java.util.List;
 @Repository
 public interface ItemRepository extends JpaRepository<Item, String> {
 
-    List<Item> findAllByUserId(String userId);
+    @Query(
+            nativeQuery = true,
+            value = "SELECT i.id, i.name, i.price, i.category_id FROM user_item ui " +
+                    "INNER JOIN item i ON ui.item_id = i.id " +
+                    "WHERE ui.user_id = :userId"
+    )
+    List<Item> findAllByUserId(@Param("userId") String userId);
 
     /**
      * It uses NamedNativeQuery, check Item entity for an example

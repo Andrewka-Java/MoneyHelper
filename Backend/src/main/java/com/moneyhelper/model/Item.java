@@ -4,25 +4,30 @@
 
 package com.moneyhelper.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.moneyhelper.dto.ItemDto;
 
 import javax.persistence.*;
 import javax.validation.constraints.DecimalMin;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @NamedNativeQuery(name = "Item.findAllAndCompressItem",
-        query = "SELECT i.name AS name, c.name AS categoryName, SUM(i.price) AS price FROM item i " +
+        query = "SELECT i.name AS name, c.name AS categoryName, COUNT(i.name) AS number, SUM(i.price) AS price FROM user_item ui " +
+                "INNER JOIN item i ON ui.item_id = i.id " +
                 "INNER JOIN category c ON i.category_id = c.id " +
-                "WHERE i.user_id = :userId " +
+                "WHERE ui.user_id = :userId " +
                 "GROUP BY i.name, c.name;",
         resultSetMapping = "Mapping.ItemDto"
 )
 @SqlResultSetMapping(name = "Mapping.ItemDto",
         classes = @ConstructorResult(targetClass = ItemDto.class,
                 columns = {
-                        @ColumnResult(name = "name"),
-                        @ColumnResult(name = "price"),
-                        @ColumnResult(name = "categoryName")
+                        @ColumnResult(name = "name", type = String.class),
+                        @ColumnResult(name = "categoryName", type = String.class),
+                        @ColumnResult(name = "number", type = Integer.class),
+                        @ColumnResult(name = "price", type = BigDecimal.class)
                 })
 )
 @Entity
@@ -39,14 +44,13 @@ public class Item extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "category_id",
             referencedColumnName = "id",
-            foreignKey = @ForeignKey(name = "fk_item_category_id"))
+            foreignKey = @ForeignKey(name = "fk_item_category_id")
+    )
     private Category category;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id",
-            referencedColumnName = "id",
-            foreignKey = @ForeignKey(name = "fk_item_user_id"))
-    private User user;
+    @JsonBackReference
+    @ManyToMany(mappedBy = "items")
+    private List<User> users = new ArrayList<>();
 
     public Item() {
     }
@@ -54,13 +58,11 @@ public class Item extends BaseEntity {
     public Item(
             final String name,
             final BigDecimal price,
-            final Category category,
-            final User user
+            final Category category
     ) {
         this.name = name;
         this.price = price;
         this.category = category;
-        this.user = user;
     }
 
     public String getName() {
@@ -87,11 +89,22 @@ public class Item extends BaseEntity {
         this.category = category;
     }
 
-    public User getUser() {
-        return user;
+    public List<User> getUsers() {
+        return users;
     }
 
-    public void setUser(final User user) {
-        this.user = user;
+    public void setUsers(final List<User> users) {
+        if (users != null && !users.isEmpty()) {
+            users.forEach(user -> user.addItem(this));
+        }
+        this.users = users;
+    }
+
+    public void addUser(final User user) {
+        if (user == null) {
+            return;
+        }
+        this.users.add(user);
     }
 }
+
