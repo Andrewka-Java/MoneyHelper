@@ -10,6 +10,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserService extends UserDetailsService {
 
+    User getUserByEmail(String userEmail);
+
     void revokeRefreshToken(String userEmail, String revokedRefreshToken);
 
     User save(UserDto userDto);

@@ -36,12 +36,12 @@ public class User extends BaseEntity {
     @ManyToMany
     @JoinTable(
             name = "user_item",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "item_id")
+            joinColumns = @JoinColumn(name = "user_id"), foreignKey = @ForeignKey(name = "fk_user_id"),
+            inverseJoinColumns = @JoinColumn(name = "item_id"), inverseForeignKey = @ForeignKey(name = "fk_item_id")
     )
     private List<Item> items = new ArrayList<>();
 
-    @OneToMany(mappedBy = "id")
+    @OneToMany(mappedBy = "id", fetch = FetchType.EAGER)
     private Set<Auth> authes = new HashSet<>();
 
     public User() {
