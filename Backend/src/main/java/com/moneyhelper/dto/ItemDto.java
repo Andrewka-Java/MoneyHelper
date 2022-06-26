@@ -17,26 +17,33 @@ public class ItemDto {
     @JsonProperty("name")
     private String name;
 
+    @NotBlank(message = "Item category name is blank")
+    @JsonProperty("categoryName")
+    private String categoryName;
+
+    @JsonProperty("number")
+    private Integer number;
+
     @NotNull(message = "Item price is null")
     @DecimalMin(value = "0.0", inclusive = false, message = "Item price less then 0.0")
     @JsonProperty("price")
     private BigDecimal price;
 
-    @NotBlank(message = "Item category name is blank")
-    @JsonProperty("categoryName")
-    private String categoryName;
+
 
     public ItemDto() {
     }
 
     public ItemDto(
             final String name,
-            final BigDecimal price,
-            final String categoryName
+            final String categoryName,
+            final Integer number,
+            final BigDecimal price
     ) {
         this.name = name;
-        this.price = price;
         this.categoryName = categoryName;
+        this.number = number;
+        this.price = price;
     }
 
     public String getName() {
@@ -47,14 +54,6 @@ public class ItemDto {
         this.name = name;
     }
 
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(final BigDecimal price) {
-        this.price = price;
-    }
-
     public String getCategoryName() {
         return categoryName;
     }
@@ -63,4 +62,19 @@ public class ItemDto {
         this.categoryName = categoryName;
     }
 
+    public Integer getNumber() {
+        return number;
+    }
+
+    public void setNumber(final Integer number) {
+        this.number = number;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(final BigDecimal price) {
+        this.price = price;
+    }
 }

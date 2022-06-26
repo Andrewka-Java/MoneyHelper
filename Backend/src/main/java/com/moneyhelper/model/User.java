@@ -7,7 +7,8 @@ package com.moneyhelper.model;
 import javax.persistence.*;
 import javax.validation.constraints.DecimalMin;
 import java.math.BigDecimal;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -32,11 +33,16 @@ public class User extends BaseEntity {
     @Column(name = "cash", nullable = false)
     private BigDecimal cash = new BigDecimal(0);
 
-    @OneToMany(mappedBy = "id")
-    private List<Item> item;
+    @ManyToMany
+    @JoinTable(
+            name = "user_item",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "item_id")
+    )
+    private List<Item> items = new ArrayList<>();
 
     @OneToMany(mappedBy = "id")
-    private Set<Auth> authes;
+    private Set<Auth> authes = new HashSet<>();
 
     public User() {
     }
@@ -46,15 +52,13 @@ public class User extends BaseEntity {
             final String email,
             final String password,
             final Role role,
-            final BigDecimal cash,
-            final List<Item> item
+            final BigDecimal cash
     ) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.role = role;
         this.cash = cash;
-        this.item = item;
     }
 
     public String getName() {
@@ -97,15 +101,15 @@ public class User extends BaseEntity {
         this.cash = cash;
     }
 
-    public List<Item> getItem() {
-        return item;
+    public List<Item> getItems() {
+        return items;
     }
 
-    public void setItem(final List<Item> items) {
-        if (items != null) {
-            items.forEach(item -> item.setUser(this));
+    public void setItems(final List<Item> items) {
+        if (items != null && !items.isEmpty()) {
+            items.forEach(item -> item.addUser(this));
         }
-        this.item = items;
+        this.items = items;
     }
 
     public Set<Auth> getAuthes() {
@@ -123,10 +127,14 @@ public class User extends BaseEntity {
         if (auth == null) {
             return;
         }
-        if (this.authes != null) {
-            this.authes.add(auth);
+        this.authes.add(auth);
+    }
+
+    public void addItem(final Item item) {
+        if (item == null) {
+            return;
         }
-        this.authes = Collections.singleton(auth);
+        this.items.add(item);
     }
 
 }

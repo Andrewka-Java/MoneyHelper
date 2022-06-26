@@ -12,13 +12,15 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
+import java.util.List;
+
 @Mapper
 public interface ItemMapper {
 
     @Mappings({
             @Mapping(target = "id", ignore = true),
-            @Mapping(target = "user", ignore = true),
-            @Mapping(target = "category", ignore = true)
+            @Mapping(target = "category", ignore = true),
+            @Mapping(target = "users", ignore = true)
     })
     Item toItem(ItemDto itemDto);
 
@@ -28,8 +30,8 @@ public interface ItemMapper {
             @Mapping(target = "name", source = "itemDto.name"),
             @Mapping(target = "price", source = "itemDto.price"),
             @Mapping(target = "category", source = "category"),
-            @Mapping(target = "user", source = "user")
+            @Mapping(target = "users", source = "users")
     })
-    Item toItem(ItemDto itemDto, Category category, User user);
+    Item toItem(ItemDto itemDto, Category category, List<User> users);
 
 }
