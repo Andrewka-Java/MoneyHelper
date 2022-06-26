@@ -4,11 +4,15 @@
 
 package com.moneyhelper.security;
 
+import com.moneyhelper.model.Auth;
+import com.moneyhelper.model.User;
+import com.moneyhelper.repository.AuthRepository;
+import com.moneyhelper.service.UserService;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
@@ -18,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.moneyhelper.util.Constant.*;
@@ -34,14 +39,18 @@ public class JwtRequestFilterRefreshToken extends AbstractRequestFilterTokenHelp
                 add(REFRESH_TOKEN_REVOKE_CONTEXT_PATH);
             }});
 
+    private final AuthRepository authRepository;
+
     @Autowired
     public JwtRequestFilterRefreshToken(
-            final UserDetailsService userDetailsService,
+            final UserService userService,
             final JwtTokenUtil jwtTokenUtil,
             @Value("${jwt.refresh.secret}") final String secret,
-            @Value("${jwt.refreshExpirationMs}") final int jwtExpirationMs
+            @Value("${jwt.refreshExpirationMs}") final int jwtExpirationMs,
+            final AuthRepository authRepository
     ) {
-        super(userDetailsService, jwtTokenUtil, secret, jwtExpirationMs);
+        super(userService, jwtTokenUtil, secret, jwtExpirationMs);
+        this.authRepository = authRepository;
     }
 
     @Override
@@ -56,14 +65,15 @@ public class JwtRequestFilterRefreshToken extends AbstractRequestFilterTokenHelp
         final String method = request.getMethod();
 
         //Authenticate anonymous user for login
-        if ( isBlank(token) && url.contains(LOGIN_CONTEXT_PATH) && method.equals(HttpMethod.POST.name()) ) {
+        if (isBlank(token) && url.contains(LOGIN_CONTEXT_PATH) && method.equals(HttpMethod.POST.name())) {
             generateTokenFunction(REFRESH_TOKEN_FUNCTION, request);
             filterChain.doFilter(request, response);
             return;
         }
 
-        //Authenticate user by refreshToken
+        //Authenticate user by token
         if ( isNotBlank(token) && isUrlForRefreshTokenAllowed(url) ) {
+            isRefreshTokenRevoked(token);
             authenticate(token, request);
             final Claims claims = jwtTokenUtil.getAllClaimsFromToken(token, secret);
             request.setAttribute(CLAIMS_ATTRIBUTE, claims);
@@ -76,6 +86,19 @@ public class JwtRequestFilterRefreshToken extends AbstractRequestFilterTokenHelp
     private boolean isUrlForRefreshTokenAllowed(final String url) {
         return RESOLVED_URLS_FOR_REFRESH_TOKEN.stream()
                 .anyMatch(url::contains);
+    }
+
+    private void isRefreshTokenRevoked(final String token) {
+        final String userEmail = jwtTokenUtil.getClaimFromToken(token, secret, Claims::getSubject);
+
+        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            final User user = userService.getUserByEmail(userEmail);
+            final List<Auth> auths = authRepository.findAllByUserId(user.getId());
+            auths.forEach(auth -> {
+                if (auth.getRevokedRefreshToken().equals(token))
+                    throw new RuntimeException("Current refresh token is revoked");
+            });
+        }
     }
 
 }

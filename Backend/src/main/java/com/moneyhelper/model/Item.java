@@ -34,7 +34,7 @@ import java.util.List;
 @Table(name = "item")
 public class Item extends BaseEntity {
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
     @DecimalMin(value = "0", message = "Price less than 0")

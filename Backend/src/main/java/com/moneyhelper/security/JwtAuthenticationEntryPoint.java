@@ -16,7 +16,7 @@ import java.io.Serializable;
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Serializable {
 
-    private static final String UNAUTHORIZED_ERROR_MESSAGE = "Unauthorized";
+    private static final String BAD_REQUEST_ERROR_MESSAGE = "Bad request";
 
     @Override
     public void commence(
@@ -24,7 +24,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Se
             final HttpServletResponse response,
             final AuthenticationException authException
     ) throws IOException {
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, UNAUTHORIZED_ERROR_MESSAGE);
+        response.sendError(HttpServletResponse.SC_BAD_REQUEST, BAD_REQUEST_ERROR_MESSAGE);
     }
 
 }

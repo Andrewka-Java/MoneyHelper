@@ -59,6 +59,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getUserByEmail(final String userEmail) {
+        final Optional<User> userOptional = userRepository.findByEmail(userEmail);
+        if (!userOptional.isPresent()) {
+            throw new UsernameNotFoundException(format("Failed to find user with email [%s]", userEmail));
+        }
+        return userOptional.get();
+    }
+
+    @Override
     public void revokeRefreshToken(final String userEmail, final String revokedRefreshToken) {
         final User user = getUserByEmail(userEmail);
         authRepository.save(new Auth(revokedRefreshToken, user));
@@ -79,12 +88,5 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
-    private User getUserByEmail(final String userEmail) {
-        final Optional<User> userOptional = userRepository.findByEmail(userEmail);
-        if (!userOptional.isPresent()) {
-            throw new UsernameNotFoundException(format("Failed to find user with email [%s]", userEmail));
-        }
-        return userOptional.get();
-    }
 
 }
